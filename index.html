@@ -160,6 +160,13 @@
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', crossOrigin: true
   }).addTo(map)
 
+  // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  // attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  // subdomains: ['a','b','c'],
+  // maxZoom: 19
+// }).addTo(map);
+
+
   // Layers and state
   const drawnItems = new L.FeatureGroup(); map.addLayer(drawnItems)
   let activeLayer = null
