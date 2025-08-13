@@ -3,15 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Weather Outlook Creator (BETA)</title>
+  <title>Outlook Creator</title>
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
   <style>
+    /* Brand palette */
     :root{
-      --bg:#0b1220; --panel:#0f1828; --ink:#e7eefc; --muted:#99a7c4; --accent:#4ad4ff;
-      --ok:#28c76f; --warn:#ff9f43; --bad:#ea5455; --line:#1a2540; --btn:#16223a;
+      /* Core brand */
+      --mm-blue:#22394D; /* map bg */
+      --mm-turquoise:#8ADBCF;
+      --mm-green:#D9EB61;
+      --mm-forest:#4C8C72;
+      --mm-sunshine:#F5E97C;
+      --mm-violet:#A49AF4;
+      --mm-signal:#E3644A;
+      --mm-grey1:#E6ECEA;
+      --mm-grey2:#CFD9D7;
+      --mm-grey3:#A8BAB6;
+      --mm-grey4:#7F9590;
+
+      /* UI theme */
+      --bg:#0b1220;
+      --panel:#0f1828;
+      --ink:#EAF2F1;
+      --muted:#9bb2ad;
+      --line:#1c2a37;
+      --btn:#162638;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -33,48 +52,27 @@
     .legend{display:grid; grid-template-columns:repeat(6, 1fr); gap:6px}
     .swatch{height:26px; border-radius:8px; border:1px solid var(--line); cursor:pointer}
     .field{display:flex; align-items:center; justify-content:space-between; gap:8px}
-    .field input[type="text"], .field input[type="number"], .field select{
-      width:140px; background:#0c1426; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:6px 8px
-    }
+    .field input[type="number"], .field select{ width:140px; background:#0c1426; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:6px 8px }
     .slider{width:100%}
     .sep{height:1px; background:var(--line); margin:12px 0}
     .hint{color:var(--muted); font-size:11px}
 
     /* Map */
     #map{height:100%; width:100%}
-    .leaflet-container{background:#091020}
+    .leaflet-container{background:var(--mm-blue)}
 
-    /* Dark overrides for Leaflet Draw, keep sprite icons intact */
+    /* Leaflet Draw dark styling, keep sprite icons */
     .leaflet-draw-toolbar a{background-color:#0e1730; border-color:#25314f}
     .leaflet-draw-toolbar a:hover{background-color:#132040}
     .leaflet-bar a, .leaflet-bar a:hover{color:#cfe0ff}
     .leaflet-popup-content-wrapper, .leaflet-popup-tip{background:#0e1730; color:#dfe8ff}
-
-    /* Color scale */
-    .c-33a{background:#f2c185}
-    .c-40a{background:#f3a96e}
-    .c-50a{background:#f08a5b}
-    .c-60a{background:#e56b57}
-    .c-70a{background:#d64c59}
-    .c-80a{background:#b63e59}
-    .c-90a{background:#932f55}
-    .c-33b{background:#b9d6ff}
-    .c-40b{background:#9cc4ff}
-    .c-50b{background:#7ab0ff}
-    .c-60b{background:#5a97f2}
-    .c-70b{background:#447ed9}
-    .c-80b{background:#3565b1}
-    .c-90b{background:#2a4f8f}
-    .c-n{background:#8a8a8a}
   </style>
 </head>
 <body>
 <div id="app">
   <aside class="side">
-    <h1 class="h1">(BETA) Weather Outlook Creator</h1>
-    <div class="sub">Draw rounded, layered polygons and export as GeoJSON or 4K PNG.
-        <br/>Ignore the (active label, probability) as they are not being used yet. 
-    </div>
+    <h1 class="h1">Outlook Creator</h1>
+    <div class="sub">Draw rounded, layered polygons and export as GeoJSON or 4K PNG.</div>
 
     <div class="grid">
       <button id="draw-poly" class="btn">New polygon</button>
@@ -86,30 +84,11 @@
     <div class="sep"></div>
 
     <div class="col">
-      <div class="field"><label>Active label</label><input id="label" type="text" placeholder="Above, Below, Near"/></div>
-      <div class="field"><label>Probability</label>
-        <select id="prob">
-          <option value="33">33-40</option>
-          <option value="40">40-50</option>
-          <option value="50">50-60</option>
-          <option value="60">60-70</option>
-          <option value="70">70-80</option>
-          <option value="80">80-90</option>
-          <option value="90">90-100</option>
-        </select>
-      </div>
-      <div class="field"><label>Opacity</label><input id="opacity" class="slider" type="range" min="0.2" max="1" step="0.05" value="0.7"></div>
-      <div class="field"><label>Stroke width</label><input id="stroke" type="number" min="0" max="8" value="1"></div>
-      <div class="field"><label>Category</label>
-        <select id="category">
-          <option value="above">Above</option>
-          <option value="below">Below</option>
-          <option value="near">Near normal</option>
-        </select>
-      </div>
+      <div class="field"><label>Opacity</label><input id="opacity" class="slider" type="range" min="0.2" max="1" step="0.05" value="0.6"></div>
+      <div class="field"><label>Stroke width</label><input id="stroke" type="number" min="0" max="8" value="2"></div>
     </div>
 
-    <div class="row" style="margin-top:8px"><span class="hint">Quick colors</span></div>
+    <div class="row" style="margin-top:8px"><span class="hint">Brand colors</span></div>
     <div id="legend" class="legend"></div>
 
     <div class="sep"></div>
@@ -143,7 +122,7 @@
     <div class="sep"></div>
 
     <div class="col">
-      <div class="hint">Tip. Click a shape to make it active. Use swatches to restyle. Import works from local files. PNG export captures map only.</div>
+      <div class="hint">Click a shape to select it. Use swatches to recolor. PNG export captures the map only.</div>
     </div>
   </aside>
   <div id="map"></div>
@@ -156,11 +135,10 @@
 <script>
   // Map setup
   const map = L.map('map', { zoomControl: true }).setView([39.5, -98.35], 4)
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', crossOrigin: true
+  // You can swap the basemap per your preference
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', subdomains:['a','b','c'], crossOrigin: true
   }).addTo(map)
- 
-
 
   // Layers and state
   const drawnItems = new L.FeatureGroup(); map.addLayer(drawnItems)
@@ -168,20 +146,14 @@ attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd
   let landMask = null
   let editHandler = null
   let isEditing = false
+  let currentColor = getBrandColors()[0].hex // default
 
-  // Load Natural Earth land for clipping (CORS-safe via GitHub raw)
+  // Load land mask (CORS-safe)
   fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_land.geojson')
     .then(r => r.json()).then(data => { landMask = data; document.getElementById('landStatus').innerText = 'Land mask ready.' })
     .catch(() => document.getElementById('landStatus').innerText = 'Land mask failed to load. Clipping disabled.')
 
-  // Colors
-  const colorScale = {
-    above: {33:'#f2c185',40:'#f3a96e',50:'#f08a5b',60:'#e56b57',70:'#d64c59',80:'#b63e59',90:'#932f55'},
-    below: {33:'#b9d6ff',40:'#9cc4ff',50:'#7ab0ff',60:'#5a97f2',70:'#447ed9',80:'#3565b1',90:'#2a4f8f'},
-    near:  {33:'#8a8a8a',40:'#8a8a8a',50:'#8a8a8a',60:'#8a8a8a',70:'#8a8a8a',80:'#8a8a8a',90:'#8a8a8a'}
-  }
-  function colorFor(cat, prob){ const p = [90,80,70,60,50,40,33].find(v => prob >= v) || 33; return colorScale[cat][p] }
-
+  // Drawing
   const drawOpts = {
     edit: { featureGroup: drawnItems, edit: true, remove: false },
     draw: {
@@ -193,23 +165,24 @@ attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd
   map.addControl(new L.Control.Draw(drawOpts))
 
   function baseShape(){
-    const cat = document.getElementById('category').value
-    const prob = parseInt(document.getElementById('prob').value, 10)
-    return { color: '#ffffff', weight: parseFloat(document.getElementById('stroke').value), fillColor: colorFor(cat, prob), fillOpacity: parseFloat(document.getElementById('opacity').value) }
+    return {
+      color: '#ffffff',
+      weight: parseFloat(document.getElementById('stroke').value),
+      fillColor: currentColor,
+      fillOpacity: parseFloat(document.getElementById('opacity').value)
+    }
   }
   function applyStyle(layer){
-    const cat = document.getElementById('category').value
-    const prob = parseInt(document.getElementById('prob').value, 10)
-    layer.setStyle({ color:'#ffffff', weight: parseFloat(document.getElementById('stroke').value), fillColor: colorFor(cat, prob), fillOpacity: parseFloat(document.getElementById('opacity').value) })
-    layer.feature = layer.feature || { type:'Feature', properties:{} }
-    layer.feature.properties.category = cat
-    layer.feature.properties.probability = prob
-    layer.feature.properties.label = document.getElementById('label').value || ''
+    layer.setStyle({
+      color:'#ffffff',
+      weight: parseFloat(document.getElementById('stroke').value),
+      fillColor: currentColor,
+      fillOpacity: parseFloat(document.getElementById('opacity').value)
+    })
   }
   function makeInteractive(layer){ layer.on('click', () => { activeLayer = layer; highlight(layer) }) }
   function highlight(layer){ drawnItems.eachLayer(l => l.setStyle && l.setStyle({ dashArray: null })); if(layer.setStyle) layer.setStyle({ dashArray: '4 3' }) }
 
-  // Create
   map.on(L.Draw.Event.CREATED, async e => {
     let layer = e.layer
     if(document.getElementById('clipLand').checked && landMask && layer.toGeoJSON){
@@ -227,14 +200,10 @@ attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd
   document.getElementById('edit').onclick = () => {
     if(!isEditing){
       editHandler = new L.EditToolbar.Edit(map, { featureGroup: drawnItems })
-      editHandler.enable()
-      isEditing = true
-      document.getElementById('edit').textContent = 'Done Editing'
+      editHandler.enable(); isEditing = true; document.getElementById('edit').textContent = 'Done Editing'
     } else {
       try{ editHandler && editHandler.save && editHandler.save() }catch(e){}
-      if(editHandler && editHandler.disable) editHandler.disable()
-      isEditing = false
-      document.getElementById('edit').textContent = 'Edit'
+      if(editHandler && editHandler.disable) editHandler.disable(); isEditing=false; document.getElementById('edit').textContent='Edit'
     }
   }
   document.getElementById('del').onclick = () => { if(!activeLayer) return; drawnItems.removeLayer(activeLayer); activeLayer = null }
@@ -243,90 +212,71 @@ attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd
   document.getElementById('duplicate').onclick = () => {
     if(!activeLayer) return
     const gj = activeLayer.toGeoJSON()
-    L.geoJSON(gj, { style: activeLayer.options }).eachLayer(l => { drawnItems.addLayer(l); makeInteractive(l); l.setStyle(activeLayer.options); l.feature = JSON.parse(JSON.stringify(activeLayer.feature || {})); activeLayer = l; highlight(l) })
+    L.geoJSON(gj, { style: activeLayer.options }).eachLayer(l => { drawnItems.addLayer(l); makeInteractive(l); l.setStyle(activeLayer.options); activeLayer = l; highlight(l) })
   }
-  ;['label','prob','opacity','stroke','category'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(activeLayer) applyStyle(activeLayer) }))
+  ;['opacity','stroke'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(activeLayer) applyStyle(activeLayer) }))
 
-  // Legend
+  // Build brand legend
+  const palette = getBrandColors()
   const legend = document.getElementById('legend')
-  ;['above','below'].forEach(cat => { [33,40,50,60,70,80,90].forEach(p => { const div = document.createElement('div'); div.className='swatch ' + (cat==='above'?('c-'+p+'a'):('c-'+p+'b')); div.title=`${cat} ${p}`; div.onclick = () => { document.getElementById('category').value = cat; document.getElementById('prob').value = p; if(activeLayer) applyStyle(activeLayer) }; legend.appendChild(div) }) })
-  const neutral = document.createElement('div'); neutral.className='swatch c-n'; neutral.title='near'; neutral.onclick = () => { document.getElementById('category').value='near'; if(activeLayer) applyStyle(activeLayer) }; legend.appendChild(neutral)
+  palette.forEach(c => {
+    const div = document.createElement('div')
+    div.className = 'swatch'
+    div.style.background = c.hex
+    div.title = c.name
+    div.onclick = () => { currentColor = c.hex; if(activeLayer) applyStyle(activeLayer) }
+    legend.appendChild(div)
+  })
 
-  // Smoothing (Chaikin)
-  function chaikin(points){ if(points.length < 3) return points; const closed = !points[0].equals(points[points.length-1]) ? points.concat([points[0]]) : points; const out = []; for(let i=0;i<closed.length-1;i++){ const p0 = closed[i], p1 = closed[i+1]; const Q = L.latLng(0.75*p0.lat + 0.25*p1.lat, 0.75*p0.lng + 0.25*p1.lng); const R = L.latLng(0.25*p0.lat + 0.75*p1.lat, 0.25*p0.lng + 0.75*p1.lng); out.push(Q,R) } out.push(out[0]); return out }
-  function smoothLayer(layer,iters){ if(!(layer instanceof L.Polygon)) return; let latlngs = layer.getLatLngs(); const rings = Array.isArray(latlngs[0]) ? latlngs : [latlngs]; const newRings = rings.map(r => { let pts = r.slice(); for(let i=0;i<iters;i++) pts = chaikin(pts); return pts }); layer.setLatLngs(newRings); layer.redraw() }
-  document.getElementById('smooth').onclick = () => { if(!activeLayer) return; const it = parseInt(document.getElementById('smooth-iters').value,10); smoothLayer(activeLayer,it) }
+  function getBrandColors(){
+    return [
+      {name:'MM Green',       hex: getComputedStyle(document.documentElement).getPropertyValue('--mm-green').trim() || '#D9EB61'},
+      {name:'MM Forest',      hex: getComputedStyle(document.documentElement).getPropertyValue('--mm-forest').trim() || '#4C8C72'},
+      {name:'MM Sunshine',    hex: getComputedStyle(document.documentElement).getPropertyValue('--mm-sunshine').trim() || '#F5E97C'},
+      {name:'MM Violet',      hex: getComputedStyle(document.documentElement).getPropertyValue('--mm-violet').trim() || '#A49AF4'},
+      {name:'MM Signal Red',  hex: getComputedStyle(document.documentElement).getPropertyValue('--mm-signal').trim() || '#E3644A'}
+    ]
+  }
 
-  // Export GeoJSON with style metadata
+  // Export GeoJSON
   document.getElementById('export').onclick = () => {
     const fc = { type:'FeatureCollection', features:[] }
-    drawnItems.eachLayer(layer => {
-      if(!layer.toGeoJSON) return
-      const gj = layer.toGeoJSON()
-      gj.properties = Object.assign({}, layer.feature && layer.feature.properties, {
-        _style: { color: layer.options.color, weight: layer.options.weight, fillColor: layer.options.fillColor, fillOpacity: layer.options.fillOpacity }
-      })
-      fc.features.push(gj)
-    })
+    drawnItems.eachLayer(layer => { if(!layer.toGeoJSON) return; const gj = layer.toGeoJSON(); gj.properties = Object.assign({}, gj.properties, { _style:{ color: layer.options.color, weight: layer.options.weight, fillColor: layer.options.fillColor, fillOpacity: layer.options.fillOpacity } }); fc.features.push(gj) })
     const blob = new Blob([JSON.stringify(fc,null,2)], {type:'application/geo+json'})
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href=url; a.download='outlook.geojson'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='outlook.geojson'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
   }
 
-  // Import GeoJSON (restores style when present)
+  // Import GeoJSON
   document.getElementById('importFile').addEventListener('change', e => {
     const file = e.target.files[0]; if(!file) return
     const reader = new FileReader()
     reader.onload = () => {
-      let data
-      try { data = JSON.parse(reader.result) } catch(err){ return }
-      const layer = L.geoJSON(data, { style: f => { const s = (f.properties && f.properties._style) || {}; return { color: s.color || '#ffffff', weight: s.weight || 1, fillColor: s.fillColor || '#888', fillOpacity: s.fillOpacity ?? 0.6 } } }).addTo(drawnItems)
-      layer.eachLayer(l => { makeInteractive(l); l.feature = l.feature || { type:'Feature', properties:{} } })
+      let data; try{ data = JSON.parse(reader.result) }catch(err){ return }
+      const layer = L.geoJSON(data, { style: f => { const s = (f.properties && f.properties._style) || {}; return { color: s.color || '#ffffff', weight: s.weight || 1, fillColor: s.fillColor || palette[0].hex, fillOpacity: s.fillOpacity ?? 0.6 } } }).addTo(drawnItems)
+      layer.eachLayer(l => makeInteractive(l))
     }
-    reader.readAsText(file)
-    e.target.value = ''
+    reader.readAsText(file); e.target.value = ''
   })
 
   // Clear
-  document.getElementById('clear').onclick = () => {
-    drawnItems.clearLayers();
-    activeLayer = null;
-    if (isEditing && editHandler) {
-      try { editHandler.disable() } catch(e) {}
-      isEditing = false;
-      document.getElementById('edit').textContent = 'Edit';
-    }
-  };
+  document.getElementById('clear').onclick = () => { drawnItems.clearLayers(); activeLayer = null; if(isEditing && editHandler){ try{editHandler.disable()}catch(e){}; isEditing=false; document.getElementById('edit').textContent='Edit' } }
 
-  // Ensure map renders if layout changes
-  setTimeout(() => map.invalidateSize(), 0);
+  // Ensure proper sizing after layout
+  setTimeout(() => map.invalidateSize(), 0)
 
-  // PNG export at 3840x2160 using DOM-to-image scaling of #map only
+  // PNG export 3840 × 2160
   document.getElementById('export-png').onclick = () => {
     const mapEl = document.getElementById('map')
     const scale = 3840 / map.getSize().x
-    domtoimage.toPng(mapEl, {
-      width: 3840,
-      height: 2160,
-      style: { transform: 'scale(' + scale + ')', transformOrigin: 'top left', background: '#0b1220' },
-      fetchRequestInit: { mode: 'cors' },
-      cacheBust: true
-    }).then(dataUrl => {
-      const a = document.createElement('a'); a.href = dataUrl; a.download = 'outlook_3840x2160.png'; a.click()
-    }).catch(err => console.error('PNG export failed', err))
+    domtoimage.toPng(mapEl, { width:3840, height:2160, style:{ transform:'scale('+scale+')', transformOrigin:'top left', background: getComputedStyle(document.documentElement).getPropertyValue('--mm-blue') }, fetchRequestInit:{mode:'cors'}, cacheBust:true })
+      .then(dataUrl => { const a = document.createElement('a'); a.href=dataUrl; a.download='outlook_3840x2160.png'; a.click() })
+      .catch(err => console.error('PNG export failed', err))
   }
 
-  // Build legend swatches
-  ;['above','below'].forEach(cat => {
-    ;[33,40,50,60,70,80,90].forEach(p => {
-      const div = document.createElement('div')
-      div.className = 'swatch ' + (cat==='above'?('c-'+p+'a'):('c-'+p+'b'))
-      div.title = `${cat} ${p}`
-      div.onclick = () => { document.getElementById('category').value = cat; document.getElementById('prob').value = p; if(activeLayer) applyStyle(activeLayer) }
-      document.getElementById('legend').appendChild(div)
-    })
-  })
-  const neutralSw = document.createElement('div'); neutralSw.className='swatch c-n'; neutralSw.title='near'; neutralSw.onclick = () => { document.getElementById('category').value='near'; if(activeLayer) applyStyle(activeLayer) }; document.getElementById('legend').appendChild(neutralSw)
+  // Smoothing
+  function chaikin(points){ if(points.length < 3) return points; const closed = !points[0].equals(points[points.length-1]) ? points.concat([points[0]]) : points; const out = []; for(let i=0;i<closed.length-1;i++){ const p0 = closed[i], p1 = closed[i+1]; const Q = L.latLng(0.75*p0.lat + 0.25*p1.lat, 0.75*p0.lng + 0.25*p1.lng); const R = L.latLng(0.25*p0.lat + 0.75*p1.lat, 0.25*p0.lng + 0.75*p1.lng); out.push(Q,R) } out.push(out[0]); return out }
+  function smoothLayer(layer,iters){ if(!(layer instanceof L.Polygon)) return; let latlngs = layer.getLatLngs(); const rings = Array.isArray(latlngs[0]) ? latlngs : [latlngs]; const newRings = rings.map(r => { let pts = r.slice(); for(let i=0;i<iters;i++) pts = chaikin(pts); return pts }); layer.setLatLngs(newRings); layer.redraw() }
+  document.getElementById('smooth').onclick = () => { if(!activeLayer) return; const it = parseInt(document.getElementById('smooth-iters').value,10); smoothLayer(activeLayer,it) }
 </script>
 </body>
 </html>
